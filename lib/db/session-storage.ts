@@ -1,10 +1,10 @@
-import { Session } from "@prisma/client";
+import { sessions } from "@prisma/client";
 import { Session as ShopifySession } from "@shopify/shopify-api";
 import prisma from "./prisma-connect";
 const apiKey = process.env.SHOPIFY_API_KEY || "";
 
 export async function storeSession(session: ShopifySession) {
-  await prisma.session.upsert({
+  await prisma.sessions.upsert({
     where: { id: session.id },
     update: {
       shop: session.shop,
@@ -70,7 +70,7 @@ export async function storeSession(session: ShopifySession) {
 }
 
 export async function loadSession(id: string) {
-  const session = await prisma.session.findUnique({
+  const session = await prisma.sessions.findUnique({
     where: { id },
   });
 
@@ -82,25 +82,25 @@ export async function loadSession(id: string) {
 }
 
 export async function deleteSession(id: string) {
-  await prisma.session.delete({
+  await prisma.sessions.delete({
     where: { id },
   });
 }
 
 export async function deleteSessions(ids: string[]) {
-  await prisma.session.deleteMany({
+  await prisma.sessions.deleteMany({
     where: { id: { in: ids } },
   });
 }
 
 export async function cleanUpSession(shop: string, accessToken: string) {
-  await prisma.session.deleteMany({
+  await prisma.sessions.deleteMany({
     where: { shop, accessToken, apiKey },
   });
 }
 
 export async function findSessionsByShop(shop: string) {
-  const sessions = await prisma.session.findMany({
+  const sessions = await prisma.sessions.findMany({
     where: { shop, apiKey },
     include: {
       onlineAccessInfo: {
@@ -114,7 +114,7 @@ export async function findSessionsByShop(shop: string) {
   return sessions.map((session) => generateShopifySessionFromDB(session));
 }
 
-function generateShopifySessionFromDB(session: Session) {
+function generateShopifySessionFromDB(session: sessions) {
   return new ShopifySession({
     id: session.id,
     shop: session.shop,

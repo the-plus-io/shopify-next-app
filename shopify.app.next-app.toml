@@ -1,0 +1,28 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "b46f028884f54a5dc9e0dbceca9f2b5d"
+name = "next app"
+application_url = "https://ordinary-dirt-screen-clusters.trycloudflare.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "quickstart-10a506ed.myshopify.com"
+include_config_on_deploy = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = ""
+
+[auth]
+redirect_urls = [
+  "https://ordinary-dirt-screen-clusters.trycloudflare.com/auth/callback",
+  "https://ordinary-dirt-screen-clusters.trycloudflare.com/auth/shopify/callback",
+  "https://ordinary-dirt-screen-clusters.trycloudflare.com/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2024-07"
+
+[pos]
+embedded = false

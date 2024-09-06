@@ -11,7 +11,7 @@ datasource db {
   directUrl = env("DIRECT_DATABASE_URL")
 }
 
-model Session {
+model sessions {
   id               String            @id @default(uuid())
   accessToken      String?
   expires          DateTime?
@@ -27,7 +27,7 @@ model Session {
 
 model OnlineAccessInfo {
   id                  String          @id @default(uuid())
-  session             Session?        @relation(fields: [sessionId], references: [id])
+  sessions            sessions?       @relation(fields: [sessionId], references: [id])
   sessionId           String?         @unique
   expiresIn           Int
   associatedUserScope String
