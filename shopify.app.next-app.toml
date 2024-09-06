@@ -2,7 +2,7 @@
 
 client_id = "b46f028884f54a5dc9e0dbceca9f2b5d"
 name = "next app"
-application_url = "https://grill-comparative-newly-organisation.trycloudflare.com"
+application_url = "https://vi-blessed-farm-punch.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ scopes = ""
 
 [auth]
 redirect_urls = [
-  "https://grill-comparative-newly-organisation.trycloudflare.com/auth/callback",
-  "https://grill-comparative-newly-organisation.trycloudflare.com/auth/shopify/callback",
-  "https://grill-comparative-newly-organisation.trycloudflare.com/api/auth/callback"
+  "https://vi-blessed-farm-punch.trycloudflare.com/auth/callback",
+  "https://vi-blessed-farm-punch.trycloudflare.com/auth/shopify/callback",
+  "https://vi-blessed-farm-punch.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
