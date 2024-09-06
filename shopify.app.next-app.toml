@@ -2,7 +2,7 @@
 
 client_id = "b46f028884f54a5dc9e0dbceca9f2b5d"
 name = "next app"
-application_url = "https://que-lexus-cups-bigger.trycloudflare.com"
+application_url = "https://mad-resume-subsidiaries-catherine.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ scopes = ""
 
 [auth]
 redirect_urls = [
-  "https://que-lexus-cups-bigger.trycloudflare.com/auth/callback",
-  "https://que-lexus-cups-bigger.trycloudflare.com/auth/shopify/callback",
-  "https://que-lexus-cups-bigger.trycloudflare.com/api/auth/callback"
+  "https://mad-resume-subsidiaries-catherine.trycloudflare.com/auth/callback",
+  "https://mad-resume-subsidiaries-catherine.trycloudflare.com/auth/shopify/callback",
+  "https://mad-resume-subsidiaries-catherine.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

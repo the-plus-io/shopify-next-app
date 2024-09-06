@@ -1,22 +1,23 @@
-import { sessions } from "@prisma/client";
 import { Session as ShopifySession } from "@shopify/shopify-api";
-import prisma from "./prisma-connect";
+import { db } from "./index";
+import { sessions, onlineAccessInfo, associatedUser } from "./schema";
+import { eq, and, inArray } from 'drizzle-orm';
+
 const apiKey = process.env.SHOPIFY_API_KEY || "";
 
 export async function storeSession(session: ShopifySession) {
-  await prisma.sessions.upsert({
-    where: { id: session.id },
-    update: {
-      shop: session.shop,
-      accessToken: session.accessToken,
-      scope: session.scope,
-      expires: session.expires ? new Date(session.expires) : null,
-      isOnline: session.isOnline,
-      state: session.state,
-      apiKey,
-    },
-    create: {
-      id: session.id,
+  await db.insert(sessions).values({
+    id: session.id,
+    shop: session.shop,
+    accessToken: session.accessToken,
+    scope: session.scope,
+    expires: session.expires ? new Date(session.expires) : null,
+    isOnline: session.isOnline,
+    state: session.state,
+    apiKey,
+  }).onConflictDoUpdate({
+    target: sessions.id,
+    set: {
       shop: session.shop,
       accessToken: session.accessToken,
       scope: session.scope,
@@ -28,34 +29,32 @@ export async function storeSession(session: ShopifySession) {
   });
 
   if (session.onlineAccessInfo) {
-    const onlineAccessInfo = await prisma.onlineAccessInfo.upsert({
-      where: { sessionId: session.id },
-      update: {
+    const [onlineAccessInfoRecord] = await db.insert(onlineAccessInfo).values({
+      sessionId: session.id,
+      expiresIn: session.onlineAccessInfo.expires_in,
+      associatedUserScope: session.onlineAccessInfo.associated_user_scope,
+    }).onConflictDoUpdate({
+      target: onlineAccessInfo.sessionId,
+      set: {
         expiresIn: session.onlineAccessInfo.expires_in,
         associatedUserScope: session.onlineAccessInfo.associated_user_scope,
       },
-      create: {
-        sessionId: session.id,
-        expiresIn: session.onlineAccessInfo.expires_in,
-        associatedUserScope: session.onlineAccessInfo.associated_user_scope,
-      },
-    });
+    }).returning();
 
     const { associated_user } = session.onlineAccessInfo;
-    const associatedUser = await prisma.associatedUser.upsert({
-      where: { onlineAccessInfoId: onlineAccessInfo.id },
-      update: {
-        firstName: associated_user.first_name,
-        lastName: associated_user.last_name,
-        email: associated_user.email,
-        emailVerified: associated_user.email_verified,
-        accountOwner: associated_user.account_owner,
-        locale: associated_user.locale,
-        collaborator: associated_user.collaborator,
-        userId: associated_user.id,
-      },
-      create: {
-        onlineAccessInfoId: onlineAccessInfo.id,
+    await db.insert(associatedUser).values({
+      onlineAccessInfoId: onlineAccessInfoRecord.id,
+      firstName: associated_user.first_name,
+      lastName: associated_user.last_name,
+      email: associated_user.email,
+      emailVerified: associated_user.email_verified,
+      accountOwner: associated_user.account_owner,
+      locale: associated_user.locale,
+      collaborator: associated_user.collaborator,
+      userId: associated_user.id,
+    }).onConflictDoUpdate({
+      target: associatedUser.onlineAccessInfoId,
+      set: {
         firstName: associated_user.first_name,
         lastName: associated_user.last_name,
         email: associated_user.email,
@@ -70,9 +69,7 @@ export async function storeSession(session: ShopifySession) {
 }
 
 export async function loadSession(id: string) {
-  const session = await prisma.sessions.findUnique({
-    where: { id },
-  });
+  const [session] = await db.select().from(sessions).where(eq(sessions.id, id));
 
   if (session) {
     return generateShopifySessionFromDB(session);
@@ -82,39 +79,36 @@ export async function loadSession(id: string) {
 }
 
 export async function deleteSession(id: string) {
-  await prisma.sessions.delete({
-    where: { id },
-  });
+  await db.delete(sessions).where(eq(sessions.id, id));
 }
 
 export async function deleteSessions(ids: string[]) {
-  await prisma.sessions.deleteMany({
-    where: { id: { in: ids } },
-  });
+  await db.delete(sessions).where(inArray(sessions.id, ids));
 }
 
 export async function cleanUpSession(shop: string, accessToken: string) {
-  await prisma.sessions.deleteMany({
-    where: { shop, accessToken, apiKey },
-  });
+  await db.delete(sessions).where(
+    and(
+      eq(sessions.shop, shop),
+      eq(sessions.accessToken, accessToken),
+      eq(sessions.apiKey, apiKey)
+    )
+  );
 }
 
 export async function findSessionsByShop(shop: string) {
-  const sessions = await prisma.sessions.findMany({
-    where: { shop, apiKey },
-    include: {
-      onlineAccessInfo: {
-        include: {
-          associatedUser: true,
-        },
-      },
-    },
-  });
+  const sessionsData = await db.select().from(sessions)
+    .where(
+      and(
+        eq(sessions.shop, shop),
+        eq(sessions.apiKey, apiKey)
+      )
+    );
 
-  return sessions.map((session) => generateShopifySessionFromDB(session));
+  return sessionsData.map((session) => generateShopifySessionFromDB(session));
 }
 
-function generateShopifySessionFromDB(session: sessions) {
+function generateShopifySessionFromDB(session: typeof sessions.$inferSelect) {
   return new ShopifySession({
     id: session.id,
     shop: session.shop,
