@@ -2,7 +2,7 @@
 
 client_id = "b46f028884f54a5dc9e0dbceca9f2b5d"
 name = "next app"
-application_url = "https://mad-resume-subsidiaries-catherine.trycloudflare.com"
+application_url = "https://grill-comparative-newly-organisation.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ scopes = ""
 
 [auth]
 redirect_urls = [
-  "https://mad-resume-subsidiaries-catherine.trycloudflare.com/auth/callback",
-  "https://mad-resume-subsidiaries-catherine.trycloudflare.com/auth/shopify/callback",
-  "https://mad-resume-subsidiaries-catherine.trycloudflare.com/api/auth/callback"
+  "https://grill-comparative-newly-organisation.trycloudflare.com/auth/callback",
+  "https://grill-comparative-newly-organisation.trycloudflare.com/auth/shopify/callback",
+  "https://grill-comparative-newly-organisation.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
